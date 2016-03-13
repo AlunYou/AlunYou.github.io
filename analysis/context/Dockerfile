@@ -1,0 +1,3 @@
+FROM alun/hadoop:1.4
+EXPOSE 8088
+EXPOSE 50070

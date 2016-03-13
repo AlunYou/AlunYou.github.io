@@ -1,0 +1,337 @@
+---
+layout: post
+---
+<section>
+    <style type="text/css">
+        .chart-container{
+            min-width: 310px;
+            height: 600px;
+            max-width: 800px;
+            margin: 0 auto
+        }
+        .pie-chart{
+            height: 280px;
+        }
+    </style>
+    <script type="text/javascript" src="{{ "/js/jquery.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/bootstrap.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/highcharts.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/exporting.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript">
+        var testFileAPI = function() {
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                return true;
+            } else {
+                alert('The File APIs are not fully supported by your browser.');
+                return false;
+            }
+        };
+
+        var zone_name_hash = {
+            "-11": "Midway Island, Samoa",
+            "-10": "Hawaii",
+            "-9": "Alaska",
+            "-8": "Pacific Time (US and Canada); Tijuana",
+            "-7": "Mountain Time (US and Canada)",
+            "-6": "Central America, Mexico City",
+            "-5": "Eastern Time (US and Canada)",
+            "-4": "Atlantic Time (Canada), Manaus, Santiago",
+            "-3": "Brasilia, Greenland, Georgetown",
+            "-2": "Mid-Atlantic",
+            "-1": "AZores, Cape Verde Islands",
+            "0": "Casablanca, Monrovia",
+            "1": "Paris, Belgrade, Bratislava, Budapest, Ljubljana, Prague",
+            "2": "Minsk, Cairo, Helsinki, Istanbul",
+            "3": "Moscow, Kuwait, Riyadh, Baghdad, Nairobi",
+            "4": "Abu Dhabi, Muscat, Baku, Tblisi",
+            "5": "Ekaterinburg, Islamabad, Karachi, Tashkent",
+            "6": "Astana, Dhaka, Almaty, Novosibirsk",
+            "7": "Bangkok, Hanoi, Jakarta, Krasnoyarsk",
+            "8": "Beijing, Chongqing, Hong Kong SAR, Urumqi, Singapore",
+            "9": "Tokyo, Osaka, Sapporo, Seoul",
+            "10": "Sydney, Canberra, Melbourne, Brisbane, Hobart",
+            "11": "Magadan, Solomon Islands, New Caledonia",
+            "12": "Fiji Islands, Kamchatka, Marshall Islands, Auckland, Wellington"
+        };
+
+        var commit_hash = {};
+        var author_hash = {};
+        var zone_commit_hash = {};
+        var zone_author_hash = {};
+        var zone_overtime_commit_ratio_hash = {};
+        var zone_overtime_author_ratio_hash = {};
+
+        var parseContent = function(contents){
+            commit_hash = {};
+            author_hash = {};
+            for(var i=-11; i<=12; i++){
+                commit_hash[""+i+":0"] = 0;
+                commit_hash[""+i+":1"] = 0;
+                author_hash[""+i+":0"] = 0;
+                author_hash[""+i+":1"] = 0;
+            }
+
+            var records = contents.split("\n");
+            for(var i=0; i<records.length; i++){
+                var rec = records[i];
+                var splits = rec.split(/\s+/g);
+                if(splits.length == 2){
+                    var key = splits[0].trim();
+                    var val = splits[1].trim();
+                    var val_splits = val.split(":");
+                    if(val_splits.length == 2){
+                        author_hash[key] = parseInt(val_splits[0]);
+                        commit_hash[key] = parseInt(val_splits[1]);
+                    }
+                }
+            }
+        };
+
+        var calSummary = function(){
+            zone_commit_hash = {};
+            zone_author_hash = {};
+            zone_overtime_commit_ratio_hash = {};
+            zone_overtime_author_ratio_hash = {};
+            for(var i=-11; i<=12; i++) {
+                zone_commit_hash[""+i] = commit_hash[""+i+":0"] + commit_hash[""+i+":1"];
+                zone_author_hash[""+i] = author_hash[""+i+":0"] + author_hash[""+i+":1"];
+                if(zone_commit_hash[""+i] > 10){
+                    zone_overtime_commit_ratio_hash[""+i] = commit_hash[""+i+":1"] / zone_commit_hash[""+i];
+                }
+                else{
+                    zone_overtime_commit_ratio_hash[""+i] = 0;
+                }
+                if(zone_author_hash[""+i] > 10){
+                    zone_overtime_author_ratio_hash[""+i] = author_hash[""+i+":1"] / zone_author_hash[""+i];
+                }
+                else{
+                    zone_overtime_author_ratio_hash[""+i] = 0;
+                }
+            }
+        };
+
+        var renderPieChart = function(by_commit){
+//            Highcharts.wrap(Highcharts, 'numberFormat', function (proceed) {
+//                return arguments[1].toFixed(1);
+//            });
+            var hash = by_commit ? zone_commit_hash : zone_author_hash;
+            var title = by_commit ? "Commit Number": "Author Number";
+            var data = [];
+            var max = -1;
+            var max_key;
+            for (var key in hash) {
+                if (hash.hasOwnProperty(key)) {
+                    var val = hash[key];
+                    if(val > max){
+                        max = val;
+                        max_key = key;
+                    }
+                }
+            }
+            for (var key in hash) {
+                if (hash.hasOwnProperty(key)) {
+                    var val = hash[key];
+                    var obj = { "name": zone_name_hash[key], "y": val };
+                    if(key == max_key){
+                        obj["sliced"] = true;
+                        obj["selected"] = true;
+                    }
+                    data.push(obj);
+                }
+            }
+
+            var $chart = $("<div class='container-parent'><div class='chart-container pie-chart'></div></div>");
+            $(".chart-area").append($chart);
+            $(".container-parent:last .chart-container").highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: title
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                credits:{
+                    enabled:!0,
+                    text:""
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Number',
+                    colorByPoint: true,
+                    data: data
+                }]
+            });
+        };
+
+
+
+        var renderBarChart = function(by_commit){
+//            Highcharts.wrap(Highcharts, 'numberFormat', function (proceed) {
+//                return  (arguments[1]*100).toFixed(1) + "%";
+//            });
+
+            var hash = by_commit ? zone_overtime_commit_ratio_hash : zone_overtime_author_ratio_hash;
+            var title = by_commit ? "Overtime Ratio By Commit": "Overtime Ratio By Author";
+            var categories = [];
+            var data = [];
+            for (var key in hash) {
+                if (hash.hasOwnProperty(key)) {
+                    var val = hash[key];
+                    if(val > 0.1){
+                        categories.push(zone_name_hash[key]);
+                        data.push(val);
+                    }
+                }
+            }
+
+            var $chart = $("<div class='container-parent'><div class='chart-container'></div></div>");
+            $(".chart-area").append($chart);
+            $(".container-parent:last .chart-container").highcharts({
+                chart: {
+                    type: 'bar'
+                },
+                title: {
+                    text: title
+                },
+                xAxis: {
+                    categories: categories,
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '',
+                        align: 'high'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                tooltip: {
+                    valueSuffix: ' Percent',
+                    formatter: function() {
+                        return this.x + ': ' + Highcharts.numberFormat(this.y * 100) + '%';
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: -40,
+                    y: 80,
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Ratio',
+                    data: data,
+                    dataLabels: {
+                        enabled: true,
+                        //format: '<b>{y:.1f} %',
+                        formatter: function() {
+                            return Highcharts.numberFormat(this.y * 100) + '%';
+                        },
+                        style: {
+                            fontSize: '13px'
+                        }
+                    }
+                }]
+            });
+        };
+
+        var renderContents = function(contents){
+            $(".chart-area").html("");
+            parseContent(contents);
+            calSummary();
+            renderPieChart(true);
+            renderPieChart(false);
+            renderBarChart(true);
+            renderBarChart(false);
+        };
+
+        var renderForRepo = function(repo){
+            $.get("/analysis/data/" + repo, null, function(resp) {
+                renderContents(resp);
+            });
+        };
+
+        var readSingleFile = function(evt) {
+            var contents;
+            var f = evt.target.files[0];
+            if (f) {
+                var r = new FileReader();
+                r.onload = function(e) {
+                    contents = e.target.result;
+
+                };
+                r.readAsText(f);
+            } else {
+                alert("Failed to load file");
+            }
+        };
+
+        $().ready(function() {
+            if(!testFileAPI()) {
+                return;
+            }
+
+            $(".dropdown-menu a").click(function(e){
+                e.preventDefault();
+                var repo = $(this).text();
+                renderForRepo(repo);
+            });
+            renderForRepo("all");
+            //document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+        });
+    </script>
+
+
+    <div class="dropdown">
+        <a href="#" data-toggle="dropdown" class="dropdown-toggle">Select Repository <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="#" class="repo-all">all</a></li>
+            <li><a href="#" class="repo-hadoop">hadoop</a></li>
+            <li><a href="#" class="repo-hive">hive</a></li>
+            <li><a href="#" class="repo-spark">spark</a></li>
+            <li><a href="#" class="repo-storm">storm</a></li>
+            <li><a href="#" class="repo-kafka">kafka</a></li>
+            <li><a href="#" class="repo-activemq">activemq</a></li>
+            <li><a href="#" class="repo-hadoop">zookeeper</a></li>
+            <li><a href="#" class="repo-hadoop">hbase</a></li>
+        </ul>
+    </div>
+    <div class="chart-area"></div>
+    <!--<input type="file" id="fileinput">-->
+
+</section>

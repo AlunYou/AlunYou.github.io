@@ -1,0 +1,93 @@
+version: '2'
+services:
+  namenode:
+    image: alun/hadoop:3.7
+    container_name: namenode
+    hostname: namenode
+    command: ["/usr/sbin/sshd", "-D"]
+    ports:
+        - 50071:50070
+        - 50091:50090
+        - 9000:9000
+        #- 9001:9001
+    links:
+        - resourcemanager
+        - jobhistory
+        - slave1
+        - slave2
+        - slave3
+  resourcemanager:
+    image: alun/hadoop:3.7
+    container_name: resourcemanager
+    hostname: resourcemanager
+    command: ["/usr/sbin/sshd", "-D"]
+    ports:
+        - 8089:8088
+        - 8060:8030
+        - 8061:8031
+        - 8062:8032
+        - 8063:8033
+        - 8049:8040
+        - 9001:9001
+    links:
+        - jobhistory
+        - slave1
+        - slave2
+        - slave3 
+  jobhistory:
+    image: alun/hadoop:3.7
+    container_name: jobhistory
+    hostname: jobhistory
+    command: ["/usr/sbin/sshd", "-D"]
+    ports:
+        - 19889:19888
+        - 10021:10020 
+    links:
+        - slave1
+        - slave2
+        - slave3
+  slave1:
+    image: alun/hadoop:3.7
+    container_name: slave1
+    hostname: slave1
+    command: ["/usr/sbin/sshd", "-D"]
+    mem_limit: 2000000000
+    #memswap_limit: 2000000000
+    ports:
+        - 50011:50010
+        - 1005:1004
+        - 1016:1006
+        - 8043:8042 
+        - 50076:50075
+        - 50021:50020
+        - 8051:8040
+  slave2:
+    image: alun/hadoop:3.7
+    container_name: slave2
+    hostname: slave2
+    command: ["/usr/sbin/sshd", "-D"]
+    mem_limit: 2000000000
+    #memswap_limit: 2000000000
+    ports:
+        - 50012:50010
+        - 1006:1004
+        - 1017:1006
+        - 8044:8042
+        - 50077:50075
+        - 50022:50020
+        - 8052:8040
+  slave3:
+    image: alun/hadoop:3.7
+    container_name: slave3
+    hostname: slave3
+    command: ["/usr/sbin/sshd", "-D"]
+    mem_limit: 2000000000
+    #memswap_limit: 2000000000
+    ports:
+        - 50013:50010
+        - 1007:1004
+        - 1018:1006
+        - 8045:8042
+        - 50078:50075
+        - 50023:50020
+        - 8053:8040
