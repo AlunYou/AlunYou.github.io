@@ -5,12 +5,18 @@ layout: post
     <style type="text/css">
         .chart-container{
             min-width: 310px;
-            height: 600px;
-            max-width: 800px;
+            height: 500px;
+            max-width: 1000px;
             margin: 0 auto
         }
         .pie-chart{
             height: 280px;
+        }
+        section{
+            margin: 10px 0px;
+        }
+        body{
+            font-size: 18px;
         }
     </style>
     <script type="text/javascript" src="{{ "/js/jquery.js" | prepend: site.baseurl }}"></script>
@@ -28,30 +34,30 @@ layout: post
         };
 
         var zone_name_hash = {
-            "-11": "Midway Island, Samoa",
-            "-10": "Hawaii",
-            "-9": "Alaska",
-            "-8": "Pacific Time (US and Canada); Tijuana",
-            "-7": "Mountain Time (US and Canada)",
-            "-6": "Central America, Mexico City",
-            "-5": "Eastern Time (US and Canada)",
-            "-4": "Atlantic Time (Canada), Manaus, Santiago",
-            "-3": "Brasilia, Greenland, Georgetown",
-            "-2": "Mid-Atlantic",
-            "-1": "AZores, Cape Verde Islands",
-            "0": "Casablanca, Monrovia",
-            "1": "Paris, Belgrade, Bratislava, Budapest, Ljubljana, Prague",
-            "2": "Minsk, Cairo, Helsinki, Istanbul",
-            "3": "Moscow, Kuwait, Riyadh, Baghdad, Nairobi",
-            "4": "Abu Dhabi, Muscat, Baku, Tblisi",
-            "5": "Ekaterinburg, Islamabad, Karachi, Tashkent",
-            "6": "Astana, Dhaka, Almaty, Novosibirsk",
-            "7": "Bangkok, Hanoi, Jakarta, Krasnoyarsk",
-            "8": "Beijing, Chongqing, Hong Kong SAR, Urumqi, Singapore",
-            "9": "Tokyo, Osaka, Sapporo, Seoul",
-            "10": "Sydney, Canberra, Melbourne, Brisbane, Hobart",
-            "11": "Magadan, Solomon Islands, New Caledonia",
-            "12": "Fiji Islands, Kamchatka, Marshall Islands, Auckland, Wellington"
+            "-11": "-11:Midway Island, Samoa",
+            "-10": "-10:Hawaii",
+            "-9": "-09:Alaska",
+            "-8": "-08:Pacific Time (US and Canada); Tijuana",
+            "-7": "-07:Mountain Time (US and Canada)",
+            "-6": "-06:Central America, Mexico City",
+            "-5": "-05:Eastern Time (US and Canada)",
+            "-4": "-04:Atlantic Time (Canada), Manaus, Santiago",
+            "-3": "-03:Brasilia, Greenland, Georgetown",
+            "-2": "-02:Mid-Atlantic",
+            "-1": "-01:AZores, Cape Verde Islands",
+            "0": "+00:London, Casablanca, Monrovia",
+            "1": "+01:Paris, Belgrade, Bratislava, Budapest",
+            "2": "+02:Minsk, Cairo, Helsinki, Istanbul",
+            "3": "+03:Moscow, Kuwait, Riyadh, Baghdad, Nairobi",
+            "4": "+04:Abu Dhabi, Muscat, Baku, Tblisi",
+            "5": "+05:Ekaterinburg, Islamabad, Karachi, Tashkent",
+            "6": "+06:Astana, Dhaka, Almaty, Novosibirsk",
+            "7": "+07:Bangkok, Hanoi, Jakarta, Krasnoyarsk",
+            "8": "+08:Beijing, Chongqing, Hong Kong, Singapore",
+            "9": "+09:Tokyo, Osaka, Sapporo, Seoul",
+            "10": "+10:Sydney, Canberra, Melbourne, Brisbane",
+            "11": "+11:Magadan, Solomon Islands, New Caledonia",
+            "12": "+12:Fiji Islands, Kamchatka, Marshall Islands"
         };
 
         var commit_hash = {};
@@ -115,7 +121,8 @@ layout: post
 //                return arguments[1].toFixed(1);
 //            });
             var hash = by_commit ? zone_commit_hash : zone_author_hash;
-            var title = by_commit ? "Commit Number": "Author Number";
+            var title = by_commit ? "Contribution by Commit Number": "Contribution by Author Number";
+            var subtitle = "";
             var data = [];
             var max = -1;
             var max_key;
@@ -152,6 +159,9 @@ layout: post
                 title: {
                     text: title
                 },
+                subtitle: {
+                    text: subtitle
+                },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
                 },
@@ -183,12 +193,9 @@ layout: post
 
 
         var renderBarChart = function(by_commit){
-//            Highcharts.wrap(Highcharts, 'numberFormat', function (proceed) {
-//                return  (arguments[1]*100).toFixed(1) + "%";
-//            });
-
             var hash = by_commit ? zone_overtime_commit_ratio_hash : zone_overtime_author_ratio_hash;
-            var title = by_commit ? "Overtime Ratio By Commit": "Overtime Ratio By Author";
+            var title = by_commit ? "Overtime Work Ratio by Commit": "Overtime Work Ratio by Author";
+            var subtitle = by_commit ? "this ratio of commits are done in overtime in a timezone": "this ratio of authors have contributed in overtime in a timezone";
             var categories = [];
             var data = [];
             for (var key in hash) {
@@ -209,6 +216,9 @@ layout: post
                 },
                 title: {
                     text: title
+                },
+                subtitle: {
+                    text: subtitle
                 },
                 xAxis: {
                     categories: categories,
@@ -281,6 +291,14 @@ layout: post
         };
 
         var renderForRepo = function(repo){
+            var existing = $('.chart-container');
+            if(existing){
+                existing.each(function(){
+                    var chart = $(this).highcharts();
+                    chart.destroy();
+                });
+            }
+
             $.get("/analysis/data/" + repo, null, function(resp) {
                 renderContents(resp);
             });
@@ -301,37 +319,193 @@ layout: post
             }
         };
 
+        var genDropdownMenu = function(){
+            $.get("/analysis/data/repo_list", null, function(resp) {
+                var menu = $(".dropdown-menu");
+                var repos = resp.split("\n");
+                for(var i=0; i<repos.length; i++){
+                    if(repos[i] != ""){
+                        menu.append("<li><a href='#'>" + repos[i] + "</a></li>");
+                    }
+                }
+
+            });
+        };
+
         $().ready(function() {
             if(!testFileAPI()) {
                 return;
             }
 
-            $(".dropdown-menu a").click(function(e){
+            genDropdownMenu();
+            $(".dropdown-menu").on("click", "a", function(e){
                 e.preventDefault();
                 var repo = $(this).text();
+                $(".dropdown-toggle").html(repo+"<b class='caret'></b>");
                 renderForRepo(repo);
             });
-            renderForRepo("all");
+
+            renderForRepo("allrepo");
             //document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
         });
     </script>
 
+    <article>
+        <section>
+            When I decided to do some small projects as exercises of learning hadoop, I almost immediately had this idea of doing git contribution analysis,
+            not only because the git log data is publicly available and easy to access, but also because this result could be interesting and useful for someone.
+        </section>
+        <section>
+            In this post, I'll do two simple analysis by two mapreduce jobs. The first one reveals the contribution ratio of each timezone,
+            and the second one shows by timezone how many of these contribution were done in overtime.
+        </section>
+        <h3>Input Data</h3>
+        <section>
+            I manually collect data for 9 popular repos which are related to big data (as I'm learning big data).
+            They're <code>activemq, hadoop, hbase, hive, kafka, spark, storm, zookeeper</code>.
+            The analysis is done in these single repos and the combination of them all.
+        </section>
+        <section>
+            I did not try github public API for fetching commit history in batch, as I don't have a powerful cluster for computing really large data. So although this code could be used
+            on large data sets, I did not try it.
+        </section>
+        <section>
+            I use <code>git log > xx.log</code> to get the commit history of each repo, and put these files into a folder named input.This is a typical commit record.
+            I need the author email, the date time and the time zone. The whole analysis is based on this hypothesis that all the contributors correctly set their timezone.
+        </section>
+        <pre><code>
+commit adf1cdf3d5abed0dae76a4967129ce64f2e16c2f
+Author: Chris Nauroth &lt;cnauroth@apache.org&gt;
+Date:   Thu Mar 10 14:49:08 2016 -0800
 
+HADOOP-12899. External distribution stitching scripts do not work correctly on Windows.</code></pre>
+
+
+        <h3>First MapReduce</h3>
+        <h4>Custom Delimiter</h4>
+        <section>
+            The commit record lies in multiple lines and the line number is undetermined, but luckily each record start on a new line with "commit".
+            So I code like this:
+        </section>
+        <pre><code>
+Configuration conf = new Configuration();
+conf.set("textinputformat.record.delimiter", "\ncommit ")</code></pre>
+        <h4>Mapper</h4>
+        <section>
+            It simply reads the commit record, writes a tuple (timezone, overtime, email) as the key, and writes 1 as the value.
+            I define the commit time range of 8:00 -> 19:00 is normal work time, even in weekend. Other time is considered overtime.
+            This is the sample map output.
+            <pre><code>-8:0:cnauroth@apache.org 1</code></pre>
+        </section>
+        <h4>Custom Partitioning</h4>
+        <section>
+            Each timezone get two partitioner, one for work time, the other for overtime. So there're 48 partitions in total.
+        </section>
+        <pre><code>
+public class TimezonePartitioner extends Partitioner<TripleKey, LongWritable>{
+
+    @Override
+    public int getPartition(TripleKey key, LongWritable value, int numReduceTasks) {
+        if(key.getOvertime()){
+            return (key.getTimezone() + 12) * 2;
+        }
+        else{
+            return (key.getTimezone() + 12) * 2 + 1;
+        }
+    }
+}</code></pre>
+        <h4>Reducer</h4>
+        <section>
+            The reducer adds the values of the same key to get this author's total commit number. Sample output:
+            <pre><code>
+-8:0:cnauroth@apache.org 10
+-8:0:txfe@gmail.com 45</code></pre>
+        </section>
+
+        <h3>Second MapReduce</h3>
+        The output of the first MapReduce job is used as the input.
+        <h4>Mapper</h4>
+        <section>Simply reads input key/value and output the same.</section>
+        <h4>Custom Grouping</h4>
+        <section>Although the key is a tuple of three, the grouping needs to be based on a pair key (timezone, overtime),
+            so that both the author number and the commit number can be calculated in reducer.</section>
+        <pre><code>job.setGroupingComparatorClass(TripleKey.FirstTwoOnlyComparator.class);</code></pre>
+public static class FirstTwoOnlyComparator extends WritableComparator {
+    public FirstTwoOnlyComparator() {
+        super(TripleKey.class);
+    }
+
+    @Override
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+        int i1 = readInt(b1, s1);
+        int i2 = readInt(b2, s2);
+
+        int compare1 = Integer.compare(i1, i2);
+        if(compare1 != 0){
+            return compare1;
+        }
+
+        boolean first1 = b1[s1+4] == 1;
+        boolean first2 = b2[s2+4] == 1;
+        return Boolean.compare(first1, first2);
+    }
+}</code></pre>
+        <h4>Reducer</h4>
+        <section>Sum the grouped values to get the total commit number, and the grouped values' record length is the total author number.</section>
+        <pre><code>
+public void reduce(TripleKey key, Iterable<LongWritable> values, Context context)
+throws IOException, InterruptedException {
+    long sum = 0;
+    long size = 0;
+    for (LongWritable val : values) {
+        sum += val.get();
+        size += 1;
+    }
+    result.setCommitNumber(sum);
+    result.setAuthorNumber(size);
+
+    result_key.setTimezone(key.getTimezone());
+    result_key.setOvertime(key.getOvertime());
+
+    context.write(result_key, result);
+}</code></pre>
+        The final output is as follow. The numbers in each time are timezone, overtime, author_number and commit_number.
+        <pre><code>
+-10:0	4:6
+-10:1	2:8
+-8:0	654:5574
+-8:1	357:2177
+        </code></pre>
+        <h3>Post Processing</h3>
+        <section>I write shell script to run 9 single repo calculation and 1 combined calculation,
+            and use <code>highchart.js</code> to collect the data and draw the pie charts and bar charts automatically.</section>
+        <section>
+            And to give timezone a more readable name, I reference
+            <a href="https://technet.microsoft.com/en-us/library/cc749073(v=ws.10).aspx">this msdn page</a> to map the timezone integer to major cities.
+        </section>
+    </article>
+
+    <h3>Charts</h3>
     <div class="dropdown">
-        <a href="#" data-toggle="dropdown" class="dropdown-toggle">Select Repository <b class="caret"></b></a>
+        <div style="color:red"> Select another repository to view: </div>
+        <a href="#" data-toggle="dropdown" class="dropdown-toggle">allrepo<b class='caret'></b></a>
         <ul class="dropdown-menu">
-            <li><a href="#" class="repo-all">all</a></li>
-            <li><a href="#" class="repo-hadoop">hadoop</a></li>
-            <li><a href="#" class="repo-hive">hive</a></li>
-            <li><a href="#" class="repo-spark">spark</a></li>
-            <li><a href="#" class="repo-storm">storm</a></li>
-            <li><a href="#" class="repo-kafka">kafka</a></li>
-            <li><a href="#" class="repo-activemq">activemq</a></li>
-            <li><a href="#" class="repo-hadoop">zookeeper</a></li>
-            <li><a href="#" class="repo-hadoop">hbase</a></li>
         </ul>
     </div>
     <div class="chart-area"></div>
     <!--<input type="file" id="fileinput">-->
 
+    <h3>Conclusion</h3>
+    <section>
+        <li>The biggest three contribution timezones are +00, -07, -08 timezones, which relates to North America and Western Europe.</li>
+        <li>Above half of these work are done in overtime. Thanks to all this contribution.</li>
+        <li>People in zone +09 which relates to Japan/Korea, are not among the biggest contributors, but they're really hard working.</li>
+        <li>I need to be more diligent to be one of the contributors.</li>
+    </section>
+    <section>
+        The conclusion item 2 is hard to believe, because I didn't even consider the weekend work as overtime. So maybe there's something wrong with the whole method.
+        You're welcome to point out any mistakes, or share your ideas about git contribution analysis.
+    </section>
+    <section>Source code is in this repo
+        <a href="https://github.com/AlunYou/AlunYou.github.io">https://github.com/AlunYou/AlunYou.github.io</a>.</section>
 </section>

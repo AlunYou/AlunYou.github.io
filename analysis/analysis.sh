@@ -19,20 +19,22 @@ do
   if [ -f "$WORK_DIR/output/_SUCCESS" ]
   then
     cp output/part-r-00000 data/$name
+    echo $name >> data/repo_list
   else
       echo "fails on: $entry"
   fi
 done
 
-echo "processing all"
+echo "processing allrepo"
 rm -rf $WORK_DIR/middle
 rm -rf $WORK_DIR/output
 $HADOOP_HOME/bin/hadoop jar contributor_analysis.jar contributor_analysis.ContributorAnalysisJob input middle output
 if [ -f "$WORK_DIR/output/_SUCCESS" ]
 then
-  cp output/part-r-00000 data/all
+  cp output/part-r-00000 data/allrepo
+  echo "allrepo" >> data/repo_list
 else
-  echo "fails on: all"
+  echo "fails on: allrepo"
 fi
 
 echo "finish"
