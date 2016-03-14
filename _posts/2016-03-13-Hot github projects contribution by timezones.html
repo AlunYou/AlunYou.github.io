@@ -422,6 +422,8 @@ public class TimezonePartitioner extends Partitioner<TripleKey, LongWritable>{
 -8:0:txfe@gmail.com 45</code></pre>
         </section>
 
+
+
         <h3>Second MapReduce</h3>
         The output of the first MapReduce job is used as the input.
         <h4>Mapper</h4>
@@ -429,7 +431,7 @@ public class TimezonePartitioner extends Partitioner<TripleKey, LongWritable>{
         <h4>Custom Grouping</h4>
         <section>Although the key is a tuple of three, the grouping needs to be based on a pair key (timezone, overtime),
             so that both the author number and the commit number can be calculated in reducer.</section>
-        <pre><code>job.setGroupingComparatorClass(TripleKey.FirstTwoOnlyComparator.class);</code></pre>
+        <pre><code>
 public static class FirstTwoOnlyComparator extends WritableComparator {
     public FirstTwoOnlyComparator() {
         super(TripleKey.class);
@@ -450,6 +452,8 @@ public static class FirstTwoOnlyComparator extends WritableComparator {
         return Boolean.compare(first1, first2);
     }
 }</code></pre>
+        <pre><code>job.setGroupingComparatorClass(TripleKey.FirstTwoOnlyComparator.class);</code></pre>
+
         <h4>Reducer</h4>
         <section>Sum the grouped values to get the total commit number, and the grouped values' record length is the total author number.</section>
         <pre><code>
