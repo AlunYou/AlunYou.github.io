@@ -305,7 +305,7 @@ layout: post
                 });
             }
 
-            $.get("/analysis/data/" + repo, null, function(resp) {
+            $.get("/analysis/result/" + repo+"/by_zone/output/part-r-00000", null, function(resp) {
                 renderContents(resp);
             });
         };
@@ -326,7 +326,7 @@ layout: post
         };
 
         var genDropdownMenu = function(){
-            $.get("/analysis/data/repo_list", null, function(resp) {
+            $.get("/analysis/result/repo_list", null, function(resp) {
                 var menu = $(".dropdown-menu");
                 var repos = resp.split("\n");
                 for(var i=0; i<repos.length; i++){
@@ -508,12 +508,12 @@ throws IOException, InterruptedException {
     <h3>Conclusion</h3>
     <section>
         <li>The biggest three contribution timezones are +00, -07, -08 timezones, which relates to North America and Western Europe.</li>
-        <li>Above half of these work are done in overtime. Thanks to all this contribution.</li>
+        <li>Much of these work are done in overtime especially for +00 timezones. Thanks to all this contribution.</li>
         <li>People in zone +09 which relates to Japan/Korea, are not among the biggest contributors, but they're really hard working.</li>
         <li>I need to be more diligent to be one of the contributors.</li>
     </section>
     <section>
-        The conclusion item 2 is hard to believe, because I didn't even consider the weekend work as overtime. So maybe there's something wrong with the whole method.
+        The conclusion item 2 is hard to believe. So maybe there's something wrong with the whole method.
         You're welcome to point out any mistakes, or share your ideas about git contribution analysis.
     </section>
     <section>Source code is in this repo
