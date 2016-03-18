@@ -1,6 +1,7 @@
 package by_zone;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -54,7 +55,8 @@ public class FirstMaper extends  Mapper<LongWritable, Text, TripleKey, LongWrita
             	int timezone = new_zone_offset.getTotalSeconds() / 3600;
 				// 8:00 -> 19:00 is the regular work time.
 				int hour = zoned_datetime.getHour();
-				boolean overtime = (hour > 18 || hour < 8) ? true : false;
+				DayOfWeek day = zoned_datetime.getDayOfWeek();
+				boolean overtime = (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY || (hour > 18 || hour < 8)) ? true : false;
 				
 				combo_key.setEmail(email);
 				combo_key.setOvertime(overtime);

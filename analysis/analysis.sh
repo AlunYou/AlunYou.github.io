@@ -24,12 +24,12 @@ do
   do
       echo "start job: $job"
       mkdir result/$name/$job
-      temp_dir = result/$name/$job
+      temp_dir="result/$name/$job"
 
-      input = "$entry"
-      if($name == "allrepo")
+      input="$entry"
+      if [ $name = "allrepo" ]
       then
-        input = "$WORK_DIR/input"
+        input="$WORK_DIR/input"
       fi
 
       $HADOOP_HOME/bin/hadoop jar contributor_analysis.jar $job.AnalysisJob "$input" $temp_dir/middle $temp_dir/output $temp_dir/extra

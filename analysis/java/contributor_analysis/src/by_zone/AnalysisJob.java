@@ -58,6 +58,7 @@ public class AnalysisJob {
 	    
 	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(SecondMaper.class);
+	    // must not use combiner and must set the reduce task to 1, to make the author number correct
 	    //job.setCombinerClass(SecondReducer.class);
 	    job.setReducerClass(SecondReducer.class);
 	    //job.setPartitionerClass(TimezonePartitioner.class);
