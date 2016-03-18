@@ -37,6 +37,7 @@ public class FirstMaper extends  Mapper<LongWritable, Text, Text, IntWritable> {
 					if(index_begin > 0 && index_begin < line.length() && index_end > 0 && index_end < line.length()){
 						email = line.substring(index_begin+1, index_end);
 						email.trim();
+						email = email.replaceAll("\\s+", "+");
 					}
 				}
 				if(line.startsWith("Date:")){
@@ -52,6 +53,7 @@ public class FirstMaper extends  Mapper<LongWritable, Text, Text, IntWritable> {
 			if(email != null && email.length() != 0 && zoned_datetime != null){
 				
 				String fileName = ((FileSplit) context.getInputSplit()).getPath().getName(); 
+				fileName = fileName.replace(".log", "");
 				map_key.set(email + "," + fileName);
 				map_value.set(1);
 				//System.out.println(map_key);

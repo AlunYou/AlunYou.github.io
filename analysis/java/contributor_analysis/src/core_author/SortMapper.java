@@ -15,7 +15,12 @@ public class SortMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
 	   splits = line.split("\\s+");
 	   if(splits.length >= 2){
 		   int num = Integer.parseInt(splits[splits.length - 1]);
-		   String email = splits[0];
+		   StringBuilder sb = new StringBuilder();
+		   for(int i=0; i<splits.length-1; i++){
+			   sb.append(splits[i]);
+			   sb.append(" ");
+		   }
+		   String email = sb.toString();
 		   commit_num.set(num);
 		   author.set(email);
 		   context.write(commit_num, author);
