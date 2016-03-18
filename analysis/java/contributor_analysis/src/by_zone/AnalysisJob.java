@@ -1,4 +1,4 @@
-package contributor_analysis;
+package by_zone;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -9,10 +9,15 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-public class ContributorAnalysisJob {
+import util.HdfsFileUtil;
+
+public class AnalysisJob {
 	public static void main(String[] args) throws Exception {
-		first_mr(args[0], args[1]);
-		second_mr(args[1], args[2]);
+		HdfsFileUtil.deletePath(args[1]);
+		HdfsFileUtil.deletePath(args[2]);
+		HdfsFileUtil.deletePath(args[3]);
+		first_mr(args[0], args[1] + "/1");
+		second_mr(args[1] + "/1", args[2]);
 	}
 	
 	public static boolean first_mr(String input, String output) throws Exception{
@@ -22,7 +27,7 @@ public class ContributorAnalysisJob {
 	    
 	    Job job = Job.getInstance(conf, "contributor_analysis_first");
 	    
-	    job.setJarByClass(ContributorAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(FirstMaper.class);
 	    job.setCombinerClass(FirstReducer.class);
 	    job.setReducerClass(FirstReducer.class);
@@ -51,7 +56,7 @@ public class ContributorAnalysisJob {
 	    
 	    Job job = Job.getInstance(conf, "contributor_analysis_second");
 	    
-	    job.setJarByClass(ContributorAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(SecondMaper.class);
 	    //job.setCombinerClass(SecondReducer.class);
 	    job.setReducerClass(SecondReducer.class);

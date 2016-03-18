@@ -1,4 +1,4 @@
-package core_author;
+package by_core_author;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package contributor_analysis;
+package by_zone;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Partitioner;

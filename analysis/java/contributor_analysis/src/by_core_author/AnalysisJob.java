@@ -1,9 +1,7 @@
-package core_author;
+package by_core_author;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -13,12 +11,13 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import util.HdfsFileUtil;
 
-public class CoreAuthorAnalysisJob {
+public class AnalysisJob {
 	public static void main(String[] args) throws Exception {
 		HdfsFileUtil.deletePath(args[1]);
 		HdfsFileUtil.deletePath(args[2]);
-		first_mr(args[0], args[1], args[3]);
-		second_mr(args[1], args[2]);
+		HdfsFileUtil.deletePath(args[3]);
+		first_mr(args[0], args[1] + "/1", args[3]);
+		second_mr(args[1] + "/1", args[2]);
 	}
 	
 	public static boolean first_mr(String input, String middle, String extra) throws Exception{
@@ -28,7 +27,7 @@ public class CoreAuthorAnalysisJob {
 	    
 	    Job job = Job.getInstance(conf, "core_author_analysis");
 	    
-	    job.setJarByClass(CoreAuthorAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(FirstMaper.class);
 	    job.setCombinerClass(SumReducer.class);
 	    job.setReducerClass(SumReducer.class);
@@ -56,7 +55,7 @@ public class CoreAuthorAnalysisJob {
 		Configuration conf = new Configuration();
 	    Job job = Job.getInstance(conf, "core_author_analysis_second");
 	    
-	    job.setJarByClass(CoreAuthorAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(SortMapper.class);
 	    job.setReducerClass(SortReducer.class);
 	    

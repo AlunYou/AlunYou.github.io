@@ -9,20 +9,19 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-import core_author.SortMapper;
-import core_author.SortReducer;
+import by_core_author.SortMapper;
+import by_core_author.SortReducer;
 import util.HdfsFileUtil;
 
-public class ByRelatedRepoAnalysisJob {
+public class AnalysisJob {
 	public static void main(String[] args) throws Exception {
 		HdfsFileUtil.deletePath(args[1]);
 		HdfsFileUtil.deletePath(args[2]);
 		HdfsFileUtil.deletePath(args[3]);
-		HdfsFileUtil.deletePath(args[4]);
-		first_mr(args[0], args[1]);
-		second_mr(args[1], args[2]);
-		third_mr(args[2], args[3]);
-		fourth_mr(args[3], args[4]);
+		first_mr(args[0], args[1] + "/1");
+		second_mr(args[1] + "/1", args[1] + "/2");
+		third_mr(args[1] + "/2", args[1] + "/3");
+		fourth_mr(args[1] + "/3", args[2]);
 	}
 	
 	public static boolean first_mr(String input, String middle) throws Exception{
@@ -32,7 +31,7 @@ public class ByRelatedRepoAnalysisJob {
 	    
 	    Job job = Job.getInstance(conf, "by_related_analysis");
 	    
-	    job.setJarByClass(ByRelatedRepoAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(by_cross.FirstMaper.class);
 	    //Must not use combiner here, it's not about efficiency, it's about correctness. use combiner will output text,text, but the reducer needs text, int
 	    //job.setCombinerClass(FirstReducer.class);
@@ -59,7 +58,7 @@ public class ByRelatedRepoAnalysisJob {
 		Configuration conf = new Configuration();
 	    Job job = Job.getInstance(conf, "by_related_analysis_second");
 	    
-	    job.setJarByClass(ByRelatedRepoAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(by_cross.SecondMapper.class);
 	    job.setReducerClass(SecondReducer.class);
 	    
@@ -84,7 +83,7 @@ public class ByRelatedRepoAnalysisJob {
 		Configuration conf = new Configuration();
 	    Job job = Job.getInstance(conf, "by_related_analysis_third");
 	    
-	    job.setJarByClass(ByRelatedRepoAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(LineAsKeyMapper.class);
 	    job.setReducerClass(SumRelatedReducer.class);
 	    
@@ -110,7 +109,7 @@ public class ByRelatedRepoAnalysisJob {
 		Configuration conf = new Configuration();
 	    Job job = Job.getInstance(conf, "by_related_analysis_fourth");
 	    
-	    job.setJarByClass(ByRelatedRepoAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(SortMapper.class);
 	    job.setReducerClass(SortReducer.class);
 	    

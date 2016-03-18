@@ -13,11 +13,9 @@ public class SecondReducer extends Reducer<Text, Text, Text, Text> {
 	private Text result_value = new Text();
 	public void reduce(Text key, Iterable<Text> values, Context context)
 			throws IOException, InterruptedException {
-		System.out.println("###########################" + key);
 		list.clear();
 		for (Text val : values) {
 			list.add(val.toString());
-			//System.out.println(val);
 		}
 		if(list.size() > 1){
 			for (int i=0; i<list.size(); i++) {

@@ -2,8 +2,6 @@ package by_author;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -13,10 +11,12 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import util.HdfsFileUtil;
 
-public class ByAuthorAnalysisJob {
+public class AnalysisJob {
 	public static void main(String[] args) throws Exception {
 		HdfsFileUtil.deletePath(args[1]);
-		first_mr(args[0], args[1], args[2]);
+		HdfsFileUtil.deletePath(args[2]);
+		HdfsFileUtil.deletePath(args[3]);
+		first_mr(args[0], args[2], args[3]);
 	}
 	
 	public static boolean first_mr(String input, String output, String extra) throws Exception{
@@ -26,7 +26,7 @@ public class ByAuthorAnalysisJob {
 	    
 	    Job job = Job.getInstance(conf, "by_author_analysis");
 	    
-	    job.setJarByClass(ByAuthorAnalysisJob.class);
+	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(FirstMaper.class);
 	    job.setCombinerClass(FirstReducer.class);
 	    job.setReducerClass(FirstReducer.class);
