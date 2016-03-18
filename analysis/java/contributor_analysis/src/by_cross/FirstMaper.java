@@ -1,19 +1,20 @@
-package contributor_analysis;
+package by_cross;
 
 import java.io.IOException;
-import java.time.ZoneOffset;
+//import java.time.DayOfWeek;
+//import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 
-public class FirstMaper extends  Mapper<LongWritable, Text, TripleKey, LongWritable> {
-	
-	private TripleKey combo_key = new TripleKey();
-	private LongWritable map_value = new LongWritable();
+public class FirstMaper extends  Mapper<LongWritable, Text, Text, IntWritable> {
+	private Text map_key = new Text();
+	private IntWritable map_value = new IntWritable();
 	
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd kk:mm:ss yyyy Z");
 	private ZonedDateTime zoned_datetime;
@@ -49,17 +50,12 @@ public class FirstMaper extends  Mapper<LongWritable, Text, TripleKey, LongWrita
 				}
 			}
 			if(email != null && email.length() != 0 && zoned_datetime != null){
-				ZoneOffset new_zone_offset = zoned_datetime.getOffset();
-            	int timezone = new_zone_offset.getTotalSeconds() / 3600;
-				// 8:00 -> 19:00 is the regular work time.
-				int hour = zoned_datetime.getHour();
-				boolean overtime = (hour > 18 || hour < 8) ? true : false;
 				
-				combo_key.setEmail(email);
-				combo_key.setOvertime(overtime);
-				combo_key.setTimezone(timezone);
+				String fileName = ((FileSplit) context.getInputSplit()).getPath().getName(); 
+				map_key.set(email + "," + fileName);
 				map_value.set(1);
-				context.write(combo_key, map_value);
+				//System.out.println(map_key);
+				context.write(map_key, map_value);
 			}
 			
 		}
