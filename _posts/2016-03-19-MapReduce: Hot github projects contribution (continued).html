@@ -10,7 +10,7 @@ categories: mapreduce
             min-width: 310px;
             height: 500px;
             max-width: 1000px;
-            margin: 0 auto
+            margin: 20px auto
         }
         .pie-chart{
             height: 280px;
@@ -61,6 +61,9 @@ categories: mapreduce
                                 plotBackgroundColor: null,
                                 plotBorderWidth: null,
                                 plotShadow: false,
+                                borderColor: '#EBBA95',
+                                borderRadius: 20,
+                                borderWidth: 1,
                                 type: 'pie'
                             },
                             title: {
@@ -131,6 +134,9 @@ categories: mapreduce
                                 plotBackgroundColor: null,
                                 plotBorderWidth: null,
                                 plotShadow: false,
+                                borderColor: '#EBBA95',
+                                borderRadius: 20,
+                                borderWidth: 1,
                                 type: 'pie'
                             },
                             title: {
@@ -184,6 +190,9 @@ categories: mapreduce
                                 plotBackgroundColor: null,
                                 plotBorderWidth: null,
                                 plotShadow: false,
+                                borderColor: '#EBBA95',
+                                borderRadius: 20,
+                                borderWidth: 1,
                                 type: 'pie'
                             },
                             title: {
@@ -240,6 +249,9 @@ categories: mapreduce
                 $(".chart-area").append($chart);
                 $(".container-parent:last .chart-container").highcharts({
                     chart: {
+                        borderColor: '#EBBA95',
+                        borderRadius: 20,
+                        borderWidth: 1,
                         type: 'bar'
                     },
                     title: {
@@ -265,10 +277,6 @@ categories: mapreduce
                         }
                     },
                     tooltip: {
-                        //valueSuffix: ' Percent',
-                        //formatter: function() {
-                        //    return this.x + ': ' + Highcharts.numberFormat(this.y * 100) + '%';
-                        //}
                     },
                     plotOptions: {
                         bar: {
@@ -296,10 +304,6 @@ categories: mapreduce
                         data: data,
                         dataLabels: {
                             enabled: true,
-                            //format: '<b>{y:.1f} %',
-                            //formatter: function() {
-                            //return Highcharts.numberFormat(this.y * 100) + '%';
-                            //},
                             style: {
                                 fontSize: '13px'
                             }
@@ -329,6 +333,9 @@ categories: mapreduce
                 $(".chart-area").append($chart);
                 $(".container-parent:last .chart-container").highcharts({
                     chart: {
+                        borderColor: '#EBBA95',
+                        borderRadius: 20,
+                        borderWidth: 1,
                         type: 'spline'
                     },
                     title: {
@@ -347,6 +354,10 @@ categories: mapreduce
                         title: {
                             text: 'Commit Number'
                         }
+                    },
+                    credits:{
+                        enabled:!0,
+                        text:""
                     },
                     tooltip: {
                         crosshairs: true,
@@ -490,6 +501,9 @@ categories: mapreduce
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
+                    borderColor: '#EBBA95',
+                    borderRadius: 20,
+                    borderWidth: 1,
                     type: 'pie'
                 },
                 title: {
@@ -548,6 +562,9 @@ categories: mapreduce
             $(".chart-area").append($chart);
             $(".container-parent:last .chart-container").highcharts({
                 chart: {
+                    borderColor: '#EBBA95',
+                    borderRadius: 20,
+                    borderWidth: 1,
                     type: 'bar'
                 },
                 title: {
