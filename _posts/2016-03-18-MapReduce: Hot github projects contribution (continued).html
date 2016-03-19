@@ -1,0 +1,732 @@
+---
+layout: post
+title:  "MapReduce: Hot github projects contribution (continued)"
+date:   2016-03-18 21:02:03 +0800
+categories: mapreduce
+---
+<section>
+    <style type="text/css">
+        .chart-container{
+            min-width: 310px;
+            height: 500px;
+            max-width: 1000px;
+            margin: 0 auto
+        }
+        .pie-chart{
+            height: 280px;
+        }
+        section{
+            margin: 10px 0px;
+        }
+        body{
+            font-size: 18px;
+        }
+        h3{
+            margin-top: 50px;
+        }
+        h4{
+            margin-top: 30px;
+        }
+        li span{
+            font-weight: bold;
+        }
+    </style>
+    <script type="text/javascript" src="{{ "/js/jquery.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/bootstrap.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/highcharts.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/exporting.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript">
+        var testFileAPI = function() {
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                return true;
+            } else {
+                alert('The File APIs are not fully supported by your browser.');
+                return false;
+            }
+        };
+
+        //Part time and Full time
+        var renderPieChartByAuthor = function(repo){
+            $.when( $.get("/analysis/result/" + repo + "/by_author/extra/full_time_author_number", null),
+                    $.get("/analysis/result/" + repo + "/by_author/extra/part_time_author_number", null) )
+                    .done(function( full_time_response, part_time_response ) {
+                        var full_time_number = parseInt(full_time_response);
+                        var part_time_number = parseInt(part_time_response);
+                        var data = [{name:'Full Time Author', y:full_time_number}, {name: 'Part Time Author', y:part_time_number}];
+
+                        var $chart = $("<div class='container-parent'><div class='chart-container pie-chart'></div></div>");
+                        $(".chart-area").append($chart);
+                        $(".container-parent:last .chart-container").highcharts({
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                                type: 'pie'
+                            },
+                            title: {
+                                text: 'Full time contributor vs Part time contributor'
+                            },
+                            subtitle: {
+                                text: 'Above half of the contributor are paid'
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.y}</b>'
+                            },
+                            credits:{
+                                enabled:!0,
+                                text:""
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    }
+                                }
+                            },
+                            series: [{
+                                name: 'Number',
+                                colorByPoint: true,
+                                data: data
+                            }]
+                        });
+                    }).fail(console.log("error fetching data"));
+        };
+
+        //Core Author Pie Chart
+        var renderPieChartByCoreAuthor = function(repo){
+            $.when( $.get("/analysis/result/" + repo + "/by_core_author/extra/commit_number", null),
+                    $.get("/analysis/result/" + repo + "/by_core_author/output/part-r-00000", null) )
+                    .done(function( commit_number_response, core_author_commit_response ) {
+                        var total_commit_number = parseInt(commit_number_response[0]);
+                        var records = core_author_commit_response[0].split("\n");
+                        var sum_until = 0;
+                        var data = [];
+                        var core_author_num = 0;
+                        for(var i=0; i<records.length; i++) {
+                            var rec = records[i].trim();
+                            var splits = rec.split(/\s+/g);
+                            if (splits.length == 2) {
+                                var commit_num = parseInt(splits[0].trim());
+                                var author = splits[1].trim();
+                                sum_until += commit_num;
+                                data.push({name: author, y: commit_num});
+                                core_author_num++;
+                                if (sum_until > total_commit_number * 0.6) {
+                                    break;
+                                }
+                            }
+                        }
+                        data.push({name: 'Other', y: total_commit_number-sum_until});
+
+                        var $chart = $("<div class='container-parent'><div class='chart-container pie-chart'></div></div>");
+                        $(".chart-area").append($chart);
+                        $(".container-parent:last .chart-container").highcharts({
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                                type: 'pie'
+                            },
+                            title: {
+                                text: 'Core Contributor'
+                            },
+                            subtitle: {
+                                text: '' + core_author_num + ' people did 60% above of the whole work'
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.y}</b>'
+                            },
+                            credits:{
+                                enabled:!0,
+                                text:""
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    }
+                                }
+                            },
+                            series: [{
+                                name: 'Commit Number',
+                                colorByPoint: true,
+                                data: data
+                            }]
+                        });
+                    }).fail(console.log("error fetching data"));
+        };
+
+        //Cross contributing
+        var renderPieChartByCross = function(repo){
+            $.when( $.get("/analysis/result/" + repo + "/by_cross/extra/author_number", null),
+                    $.get("/analysis/result/" + repo + "/by_cross/extra/cross_author_number", null) )
+                    .done(function( author_number_response, cross_author_number_response ) {
+                        var author_number = parseInt(author_number_response[0]);
+                        var cross_author_number = parseInt(cross_author_number_response[0]);
+                        var data = [{name:'Cross Contributing Author', y:cross_author_number}, {name: 'Other', y:author_number - cross_author_number}];
+
+                        var $chart = $("<div class='container-parent'><div class='chart-container pie-chart'></div></div>");
+                        $(".chart-area").append($chart);
+                        $(".container-parent:last .chart-container").highcharts({
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                                type: 'pie'
+                            },
+                            title: {
+                                text: 'Cross Contributing authors '
+                            },
+                            subtitle: {
+                                text: 'only ' + cross_author_number + ' people contribute to multiple repos'
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.y}</b>'
+                            },
+                            credits:{
+                                enabled:!0,
+                                text:""
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    }
+                                }
+                            },
+                            series: [{
+                                name: 'Number',
+                                colorByPoint: true,
+                                data: data
+                            }]
+                        });
+                    }).fail(console.log("error fetching data"));
+        };
+
+        var renderBarChartByRelated = function(repo){
+            $.get("/analysis/result/" + repo + "/by_related/output/part-r-00000", null, function(response){
+                var records = response.split("\n");
+                var categories = [];
+                var data = [];
+                for(var i=0; i<records.length; i++) {
+                    var rec = records[i].trim();
+                    var splits = rec.split(/\s+/g);
+                    if (splits.length == 3) {
+                        var author_num = parseInt(splits[0].trim());
+                        categories.push(splits[1] + '+' + splits[2]);
+                        data.push(author_num);
+                    }
+                }
+
+                var $chart = $("<div class='container-parent'><div class='chart-container'></div></div>");
+                $(".chart-area").append($chart);
+                $(".container-parent:last .chart-container").highcharts({
+                    chart: {
+                        type: 'bar'
+                    },
+                    title: {
+                        text: 'Repo Relation: Authors On Cross contribution Repos'
+                    },
+                    subtitle: {
+                        text: 'hadoop, spark, hbase, kafka and storm are mutually higher related than zookeeper, activemq and hive'
+                    },
+                    xAxis: {
+                        categories: categories,
+                        title: {
+                            text: null
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '',
+                            align: 'high'
+                        },
+                        labels: {
+                            overflow: 'justify'
+                        }
+                    },
+                    tooltip: {
+                        //valueSuffix: ' Percent',
+                        //formatter: function() {
+                        //    return this.x + ': ' + Highcharts.numberFormat(this.y * 100) + '%';
+                        //}
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: true,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: true
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Crossing Contributor',
+                        data: data,
+                        dataLabels: {
+                            enabled: true,
+                            //format: '<b>{y:.1f} %',
+                            //formatter: function() {
+                            //return Highcharts.numberFormat(this.y * 100) + '%';
+                            //},
+                            style: {
+                                fontSize: '13px'
+                            }
+                        }
+                    }]
+                });
+            });
+        };
+
+        var renderSplineByHour = function(repo){
+            $.get("/analysis/result/" + repo + "/by_hour/middle/1/part-r-00000", null, function(response){
+                var records = response.split("\n");
+                var categories = [];
+                var data = [];
+                for(var i=0; i<records.length; i++) {
+                    var rec = records[i].trim();
+                    var splits = rec.split(/\s+/g);
+                    if (splits.length == 2) {
+                        var hour = parseInt(splits[0].trim());
+                        var commit_num = parseInt(splits[1].trim());
+                        categories.push(hour);
+                        data.push(commit_num);
+                    }
+                }
+
+                var $chart = $("<div class='container-parent'><div class='chart-container'></div></div>");
+                $(".chart-area").append($chart);
+                $(".container-parent:last .chart-container").highcharts({
+                    chart: {
+                        type: 'spline'
+                    },
+                    title: {
+                        text: 'Hourly Commits'
+                    },
+                    subtitle: {
+                        text: 'Stay up no later than midnight, as these genius engineers do'
+                    },
+                    xAxis: {
+                        title: {
+                            text: 'Hour'
+                        },
+                        categories: categories
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Commit Number'
+                        }
+                    },
+                    tooltip: {
+                        crosshairs: true,
+                        shared: true
+                    },
+                    plotOptions: {
+                        spline: {
+                            marker: {
+                                radius: 4,
+                                lineColor: '#666666',
+                                lineWidth: 1
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Commit Number',
+                        marker: {
+                            symbol: 'square'
+                        },
+                        data: data
+                    }]
+                });
+            });
+        };
+
+        var zone_name_hash = {
+            "-11": "-11:Midway Island, Samoa",
+            "-10": "-10:Hawaii",
+            "-9": "-09:Alaska",
+            "-8": "-08:Pacific Time (US and Canada); Tijuana",
+            "-7": "-07:Mountain Time (US and Canada)",
+            "-6": "-06:Central America, Mexico City",
+            "-5": "-05:Eastern Time (US and Canada)",
+            "-4": "-04:Atlantic Time (Canada), Manaus, Santiago",
+            "-3": "-03:Brasilia, Greenland, Georgetown",
+            "-2": "-02:Mid-Atlantic",
+            "-1": "-01:AZores, Cape Verde Islands",
+            "0": "+00:London, Casablanca, Monrovia",
+            "1": "+01:Paris, Belgrade, Bratislava, Budapest",
+            "2": "+02:Minsk, Cairo, Helsinki, Istanbul",
+            "3": "+03:Moscow, Kuwait, Riyadh, Baghdad, Nairobi",
+            "4": "+04:Abu Dhabi, Muscat, Baku, Tblisi",
+            "5": "+05:Ekaterinburg, Islamabad, Karachi, Tashkent",
+            "6": "+06:Astana, Dhaka, Almaty, Novosibirsk",
+            "7": "+07:Bangkok, Hanoi, Jakarta, Krasnoyarsk",
+            "8": "+08:Beijing, Chongqing, Hong Kong, Singapore",
+            "9": "+09:Tokyo, Osaka, Sapporo, Seoul",
+            "10": "+10:Sydney, Canberra, Melbourne, Brisbane",
+            "11": "+11:Magadan, Solomon Islands, New Caledonia",
+            "12": "+12:Fiji Islands, Kamchatka, Marshall Islands"
+        };
+
+        var commit_hash = {};
+        var author_hash = {};
+        var zone_commit_hash = {};
+        var zone_author_hash = {};
+        var zone_overtime_commit_ratio_hash = {};
+        var zone_overtime_author_ratio_hash = {};
+
+        var parseContent = function(contents){
+            commit_hash = {};
+            author_hash = {};
+            for(var i=-11; i<=12; i++){
+                commit_hash[""+i+":0"] = 0;
+                commit_hash[""+i+":1"] = 0;
+                author_hash[""+i+":0"] = 0;
+                author_hash[""+i+":1"] = 0;
+            }
+
+            var records = contents.split("\n");
+            for(var i=0; i<records.length; i++){
+                var rec = records[i];
+                var splits = rec.split(/\s+/g);
+                if(splits.length == 2){
+                    var key = splits[0].trim();
+                    var val = splits[1].trim();
+                    var val_splits = val.split(":");
+                    if(val_splits.length == 2){
+                        author_hash[key] = parseInt(val_splits[0]);
+                        commit_hash[key] = parseInt(val_splits[1]);
+                    }
+                }
+            }
+        };
+
+        var calSummary = function(){
+            zone_commit_hash = {};
+            zone_author_hash = {};
+            zone_overtime_commit_ratio_hash = {};
+            zone_overtime_author_ratio_hash = {};
+            for(var i=-11; i<=12; i++) {
+                zone_commit_hash[""+i] = commit_hash[""+i+":0"] + commit_hash[""+i+":1"];
+                zone_author_hash[""+i] = author_hash[""+i+":0"] + author_hash[""+i+":1"];
+                if(zone_commit_hash[""+i] > 10){
+                    zone_overtime_commit_ratio_hash[""+i] = commit_hash[""+i+":1"] / zone_commit_hash[""+i];
+                }
+                else{
+                    zone_overtime_commit_ratio_hash[""+i] = 0;
+                }
+                if(zone_author_hash[""+i] > 10){
+                    zone_overtime_author_ratio_hash[""+i] = author_hash[""+i+":1"] / zone_author_hash[""+i];
+                }
+                else{
+                    zone_overtime_author_ratio_hash[""+i] = 0;
+                }
+            }
+        };
+
+        var renderPieChart = function(by_commit){
+            var hash = by_commit ? zone_commit_hash : zone_author_hash;
+            var title = by_commit ? "Contribution by Commit Number of each Timezone": "Contribution by Author Number of Each Timezone";
+            var subtitle = "We can guess that Western Europe and America are the top two contribution area";
+            var data = [];
+            var max = -1;
+            var max_key;
+            for (var key in hash) {
+                if (hash.hasOwnProperty(key)) {
+                    var val = hash[key];
+                    if(val > max){
+                        max = val;
+                        max_key = key;
+                    }
+                }
+            }
+            for (var key in hash) {
+                if (hash.hasOwnProperty(key)) {
+                    var val = hash[key];
+                    var obj = { "name": zone_name_hash[key], "y": val };
+                    if(key == max_key){
+                        obj["sliced"] = true;
+                        obj["selected"] = true;
+                    }
+                    data.push(obj);
+                }
+            }
+
+            var $chart = $("<div class='container-parent'><div class='chart-container pie-chart'></div></div>");
+            $(".chart-area").append($chart);
+            $(".container-parent:last .chart-container").highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: title
+                },
+                subtitle: {
+                    text: subtitle
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                credits:{
+                    enabled:!0,
+                    text:""
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Number',
+                    colorByPoint: true,
+                    data: data
+                }]
+            });
+        };
+
+
+
+        var renderBarChart = function(by_commit){
+            var hash = by_commit ? zone_overtime_commit_ratio_hash : zone_overtime_author_ratio_hash;
+            var title = by_commit ? "Overtime Work Ratio by Commit of each Timezone": "Overtime Work Ratio by Author of Each Timezone";
+            var subtitle = by_commit ? "this ratio of commits are done in overtime in a timezone": "this ratio of authors have contributed in overtime in a timezone";
+            var categories = [];
+            var data = [];
+            for (var key in hash) {
+                if (hash.hasOwnProperty(key)) {
+                    var val = hash[key];
+                    if(val > 0.1){
+                        categories.push(zone_name_hash[key]);
+                        data.push(val);
+                    }
+                }
+            }
+
+            var $chart = $("<div class='container-parent'><div class='chart-container'></div></div>");
+            $(".chart-area").append($chart);
+            $(".container-parent:last .chart-container").highcharts({
+                chart: {
+                    type: 'bar'
+                },
+                title: {
+                    text: title
+                },
+                subtitle: {
+                    text: subtitle
+                },
+                xAxis: {
+                    categories: categories,
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '',
+                        align: 'high'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                tooltip: {
+                    valueSuffix: ' Percent',
+                    formatter: function() {
+                        return this.x + ': ' + Highcharts.numberFormat(this.y * 100) + '%';
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: -40,
+                    y: 80,
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Ratio',
+                    data: data,
+                    dataLabels: {
+                        enabled: true,
+                        //format: '<b>{y:.1f} %',
+                        formatter: function() {
+                            return Highcharts.numberFormat(this.y * 100) + '%';
+                        },
+                        style: {
+                            fontSize: '13px'
+                        }
+                    }
+                }]
+            });
+        };
+
+        var renderContents = function(contents){
+            $(".chart-area").html("");
+            parseContent(contents);
+            calSummary();
+            renderPieChart(true);
+            renderPieChart(false);
+            renderBarChart(true);
+            renderBarChart(false);
+        };
+
+        var renderForRepo = function(repo){
+            var existing = $('.chart-container');
+            if(existing){
+                existing.each(function(){
+                    var chart = $(this).highcharts();
+                    chart.destroy();
+                });
+            }
+
+            $.get("/analysis/result/" + repo+"/by_zone/output/part-r-00000", null, function(resp) {
+                renderContents(resp);
+            });
+            renderPieChartByAuthor(repo);
+            renderPieChartByCoreAuthor(repo);
+            renderSplineByHour(repo);
+            if(repo == "allrepo"){
+                renderPieChartByCross(repo);
+                renderBarChartByRelated(repo);
+            }
+        };
+
+        var readSingleFile = function(evt) {
+            var contents;
+            var f = evt.target.files[0];
+            if (f) {
+                var r = new FileReader();
+                r.onload = function(e) {
+                    contents = e.target.result;
+
+                };
+                r.readAsText(f);
+            } else {
+                alert("Failed to load file");
+            }
+        };
+
+        var genDropdownMenu = function(){
+            $.get("/analysis/result/repo_list", null, function(resp) {
+                var menu = $(".dropdown-menu");
+                var repos = resp.split("\n");
+                for(var i=0; i<repos.length; i++){
+                    if(repos[i] != ""){
+                        menu.append("<li><a href='#'>" + repos[i] + "</a></li>");
+                    }
+                }
+
+            });
+        };
+
+        $().ready(function() {
+            if(!testFileAPI()) {
+                return;
+            }
+
+            genDropdownMenu();
+            $(".dropdown-menu").on("click", "a", function(e){
+                e.preventDefault();
+                var repo = $(this).text();
+                $(".dropdown-toggle").html(repo+"<b class='caret'></b>");
+                renderForRepo(repo);
+            });
+
+            renderForRepo("allrepo");
+            //document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+        });
+    </script>
+
+    <article>
+        <section>
+            This analysis is a continued work on the git analysis project following my last post. For the completeness, I incorporate the charts of the last post into
+            this one.
+        </section>
+        <section>
+            This time I'll just introduce the whole idea and show some charts. If you're interested in the source code, please visit <a href="https://github.com/AlunYou/AlunYou.github.io">https://github.com/AlunYou/AlunYou.github.io</a>.
+        </section>
+        <h3>Input Data</h3>
+        <section>
+            I manually collect commit log data for 8 popular repos <code>activemq, hadoop, hbase, hive, kafka, spark, storm, zookeeper</code> by <code>git log > xx.log</code> command.
+            Please note, the chart sub title is my comment based on the default charts which are analysis of all the 8 repos.
+            You could also select a single repo to view. It's interesting to see the difference of these repos.
+        </section>
+        <h3>Definition:</h3>
+        <section>
+            <li><span>Overtime:</span> Saturday or Sunday, or earlier than 8 AM or later than 7 PM on Monday to Friday.</li>
+            <li><span>Core Contributors:</span> the group of people who contributed about 60% of the whole commits.</li>
+            <li><span>Full Time Contributors:</span> the authors who make 60% above of their commits at work time.</li>
+            <li><span>Cross Contributors:</span> authors commit to at least two repos.</li>
+            <li><span>Repo Relation:</span> See how much two repos are related by investigating how many authors contribute to both of them.</li>
+        </section>
+    </article>
+
+    <h3>Charts</h3>
+    <div class="dropdown">
+        <div style="color:red"> Select another repository to view: </div>
+        <a href="#" data-toggle="dropdown" class="dropdown-toggle">allrepo<b class='caret'></b></a>
+        <ul class="dropdown-menu">
+        </ul>
+    </div>
+    <div class="chart-area"></div>
+    <h3>Discussion:</h3>
+    <section>
+        <li>In the repo relation analysis, I had to use 4 mapreduce jobs to do the work. I'm wondering what is the normal number of jobs for a typical real-life project.</li>
+    </section>
+</section>
