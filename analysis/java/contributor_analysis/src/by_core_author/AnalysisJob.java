@@ -46,7 +46,7 @@ public class AnalysisJob {
 
 	    boolean res = job.waitForCompletion(true) ? true : false;
 	    
-	    HdfsFileUtil.writeCounterToFile(job, "org.apache.hadoop.mapred.Task$Counter", "MAP_OUTPUT_RECORDS", extra, "author_number");
+	    HdfsFileUtil.writeCounterToFile(job, "org.apache.hadoop.mapred.Task$Counter", "MAP_OUTPUT_RECORDS", extra, "commit_number");
 	    
 	    return res;
 	}
