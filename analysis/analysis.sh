@@ -12,13 +12,14 @@ mkdir result
 rm -rf data
 mkdir data
 
-jobs=(by_zone by_author by_core_author by_cross by_related)
+jobs=(by_zone by_author by_core_author by_cross by_related by_hour)
 
 for entry in "$WORK_DIR"/input/*
 do
   echo "processing $entry"
   name=$(basename "$entry" ".log")
   mkdir result/$name
+  echo $name >> result/repo_list
 
   for job in "${jobs[@]}"
   do

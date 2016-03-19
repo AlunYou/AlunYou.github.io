@@ -9,8 +9,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-import by_core_author.SortMapper;
-import by_core_author.SortReducer;
+import reusable.IntTextDefaultReducer;
+import reusable.TextIntLineSortMapper;
 import util.HdfsFileUtil;
 
 public class AnalysisJob {
@@ -110,8 +110,8 @@ public class AnalysisJob {
 	    Job job = Job.getInstance(conf, "by_related_analysis_fourth");
 	    
 	    job.setJarByClass(AnalysisJob.class);
-	    job.setMapperClass(SortMapper.class);
-	    job.setReducerClass(SortReducer.class);
+	    job.setMapperClass(TextIntLineSortMapper.class);
+	    job.setReducerClass(IntTextDefaultReducer.class);
 	    
 	    job.setMapOutputKeyClass(IntWritable.class);
 	    job.setMapOutputValueClass(Text.class);

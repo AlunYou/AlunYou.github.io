@@ -1,13 +1,13 @@
-package by_core_author;
+package reusable;
 
 import java.io.IOException;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class SortMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
-	private IntWritable commit_num = new IntWritable();
-	private Text author = new Text();
+public class TextIntLineSortMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
+	private IntWritable result_key = new IntWritable();
+	private Text result_value = new Text();
 	private String[] splits = null;
 
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException{
@@ -21,9 +21,9 @@ public class SortMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
 			   sb.append(" ");
 		   }
 		   String email = sb.toString();
-		   commit_num.set(num);
-		   author.set(email);
-		   context.write(commit_num, author);
+		   result_key.set(num);
+		   result_value.set(email);
+		   context.write(result_key, result_value);
 	   }
 	}
 }
