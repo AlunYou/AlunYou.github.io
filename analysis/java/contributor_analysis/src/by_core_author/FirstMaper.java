@@ -13,7 +13,7 @@ public class FirstMaper extends  Mapper<LongWritable, Text, Text, IntWritable> {
 	private Text map_key = new Text();
 	private IntWritable map_value = new IntWritable();
 	
-	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd kk:mm:ss yyyy Z");
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM d kk:mm:ss yyyy Z");
 	private ZonedDateTime zoned_datetime;
 	
 	private String val = null;
@@ -43,7 +43,8 @@ public class FirstMaper extends  Mapper<LongWritable, Text, Text, IntWritable> {
 		            	zoned_datetime = ZonedDateTime.parse(line, formatter);
 		            }
 		            catch(DateTimeParseException e){
-		            	
+		            	String error = e.getMessage();
+						System.err.println(error);
 		            }
 				}
 			}

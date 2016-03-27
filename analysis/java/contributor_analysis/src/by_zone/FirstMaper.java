@@ -16,7 +16,7 @@ public class FirstMaper extends  Mapper<LongWritable, Text, TripleKey, LongWrita
 	private TripleKey combo_key = new TripleKey();
 	private LongWritable map_value = new LongWritable();
 	
-	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd kk:mm:ss yyyy Z");
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM d kk:mm:ss yyyy Z");
 	private ZonedDateTime zoned_datetime;
 	
 	private String val = null;
@@ -46,7 +46,8 @@ public class FirstMaper extends  Mapper<LongWritable, Text, TripleKey, LongWrita
 		            	zoned_datetime = ZonedDateTime.parse(line, formatter);
 		            }
 		            catch(DateTimeParseException e){
-		            	
+		            	String error = e.getMessage();
+						System.err.println(error);
 		            }
 				}
 			}

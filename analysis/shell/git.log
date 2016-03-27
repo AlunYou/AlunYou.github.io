@@ -1,0 +1,23 @@
+commit adf1cdf3d5abed0dae76a4967129ce64f2e16c2f
+Author: Chris Nauroth <cnauroth@apache.org>
+Date:   Thu Mar 10 14:49:08 2016 -0800
+
+    HADOOP-12899. External distribution stitching scripts do not work correctly on Windows. Contributed by Chris Nauroth.
+
+commit 79961ecea888e0ee85b7a75e239bb6bb3335eb17
+Author: Colin Patrick Mccabe <“singhal@us.ibm.com”>
+Date:   Thu Mar 10 13:43:27 2016 -0800
+
+    HDFS-9933. ReverseXML should be capitalized in oiv usage message (cmccabe)
+
+commit bd49354c6d6387620b0de2219eab1714ec2d64f8
+Author: Colin Patrick Mccabe <cmccabe@cloudera.com>
+Date:   Thu Mar 10 13:41:06 2016 -0800
+
+    HDFS-9934. ReverseXML oiv processor should bail out if the XML file's layoutVersion doesn't match oiv's (cmccabe)
+
+commit 500875dfccdb3bb6709767962d1927ddb1cc5514
+Author: Colin Patrick Mccabe <cmccabe@cloudera.com>
+Date:   Thu Mar 10 13:38:00 2016 -0800
+
+    HDFS-9927. Document the new OIV ReverseXML processor (Wei-Chiu Chuang via cmccabe)

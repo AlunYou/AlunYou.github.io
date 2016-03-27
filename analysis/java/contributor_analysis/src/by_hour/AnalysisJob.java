@@ -18,11 +18,11 @@ public class AnalysisJob {
 		HdfsFileUtil.deletePath(args[1]);
 		HdfsFileUtil.deletePath(args[2]);
 		HdfsFileUtil.deletePath(args[3]);
-		first_mr(args[0], args[1] + "/1");
+		first_mr(args[0], args[1] + "/1", args[3]);
 		second_mr(args[1] + "/1", args[2]);
 	}
 	
-	public static boolean first_mr(String input, String output) throws Exception{
+	public static boolean first_mr(String input, String output, String extra) throws Exception{
 		Configuration conf = new Configuration();
 		// must set conf before create job
 		conf.set("textinputformat.record.delimiter", "\ncommit ");
@@ -47,6 +47,8 @@ public class AnalysisJob {
 	    FileOutputFormat.setOutputPath(job, new Path(output));
 
 	    boolean res = job.waitForCompletion(true) ? true : false;
+	    
+	    //HdfsFileUtil.writeCounterToFile(job, "org.apache.hadoop.mapred.Task$Counter", "MAP_OUTPUT_RECORDS", extra, "map_output_records");
 	    return res;
 	}
 	

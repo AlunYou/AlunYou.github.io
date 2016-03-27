@@ -434,10 +434,13 @@ categories: mapreduce
                 if(splits.length == 2){
                     var key = splits[0].trim();
                     var val = splits[1].trim();
+                    var key_splits = key.split(":");
                     var val_splits = val.split(":");
-                    if(val_splits.length == 2){
-                        author_hash[key] = parseInt(val_splits[0]);
-                        commit_hash[key] = parseInt(val_splits[1]);
+                    if(val_splits.length == 2 && key_splits.length == 2){
+                        var zone = parseInt(key_splits[0]);
+                        var new_key = zone+":"+key_splits[1];
+                        author_hash[new_key] = parseInt(val_splits[0]);
+                        commit_hash[new_key] = parseInt(val_splits[1]);
                     }
                 }
             }

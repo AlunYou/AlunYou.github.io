@@ -28,7 +28,7 @@ public class AnalysisJob {
 	    
 	    job.setJarByClass(AnalysisJob.class);
 	    job.setMapperClass(FirstMaper.class);
-	    job.setCombinerClass(FirstReducer.class);
+	    //job.setCombinerClass(FirstReducer.class);
 	    job.setReducerClass(FirstReducer.class);
 	    
 	    job.setMapOutputKeyClass(Text.class);

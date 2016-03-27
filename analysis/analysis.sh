@@ -14,7 +14,7 @@ mkdir data
 
 jobs=(by_zone by_author by_core_author by_cross by_related by_hour)
 
-for entry in "$WORK_DIR"/input/*
+for entry in "$WORK_DIR"/input/*.log
 do
   echo "processing $entry"
   name=$(basename "$entry" ".log")
