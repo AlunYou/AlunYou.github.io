@@ -14,9 +14,8 @@ load_preprocess() {
 
     preprocess=$2
     $HIVE_HOME/bin/hive -e "DROP TABLE $table;"
-    $HIVE_HOME/bin/hive -e "CREATE TABLE $table (repo STRING, overtime INT, hour INT, zone STRING, email STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ' ';"
+    $HIVE_HOME/bin/hive -e "CREATE TABLE $table (repo STRING, overtime INT, hour INT, zone INT, email STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ' ';"
     $HIVE_HOME/bin/hive -e "LOAD DATA LOCAL INPATH '$preprocess' OVERWRITE INTO TABLE $table;"
-
 }
 
 by_zone () {
@@ -26,7 +25,7 @@ by_zone () {
    mkdir -p $result/$name/by_zone/output
    mkdir -p $result/$name/by_zone/extra
 
-   $HIVE_HOME/bin/hive -e "select printf(\"%d:%d %d:%d\", temp.zone, temp.overtime, temp.author_num, temp.commit_num) from (select zone, overtime, count(distinct email) as author_num, count(*) as commit_num from $table where true group by zone, overtime order by zone, overtime) temp;" > $result/$name/by_zone/output/part-r-00000
+   $HIVE_HOME/bin/hive -e "select printf('%d:%d %d:%d', temp.zone, temp.overtime, temp.author_num, temp.commit_num) from (select zone, overtime, count(distinct email) as author_num, count(*) as commit_num from $table where true group by zone, overtime order by zone, overtime) temp;" > $result/$name/by_zone/output/part-r-00000
 }
 
 by_author () {
