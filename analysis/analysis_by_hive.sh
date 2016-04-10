@@ -6,14 +6,14 @@ result=result_hive
 rm -rf $result
 mkdir $result
 
-jobs=(by_core_author)
-#(by_zone by_author by_core_author by_cross by_related by_hour)
+jobs=(by_zone by_author by_core_author by_cross by_related by_hour)
 
 load_preprocess() {
     table=$1_commits
     echo $table
 
     preprocess=$2
+    $HIVE_HOME/bin/hive -e "DROP TABLE $table;"
     $HIVE_HOME/bin/hive -e "CREATE TABLE $table (repo STRING, overtime INT, hour INT, zone STRING, email STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ' ';"
     $HIVE_HOME/bin/hive -e "LOAD DATA LOCAL INPATH '$preprocess' OVERWRITE INTO TABLE $table;"
 
@@ -22,14 +22,11 @@ load_preprocess() {
 by_zone () {
    echo "by_zone $1 $2"
    name=$1
+   table=$1_commits
    mkdir -p $result/$name/by_zone/output
    mkdir -p $result/$name/by_zone/extra
-   awk ' BEGIN {OFS=" "} {print $4, $2, $5}' $result/$name/preprocess/preprocess.log   |
-   sort -nr | uniq -c |
-   awk ' BEGIN {OFS=" "} {print $2, $3, $4, $1}' | sort -nr  |
-   awk 'BEGIN {OFS=" ";author_num=0;commit_num=0;has_data=0;} {if ($1 == pre_zone && $2 == pre_overtime) {author_num+=1; commit_num+=$4; }else{if(has_data) print pre_zone, pre_overtime, author_num, commit_num; author_num=1; commit_num=$4;}
-   }; {pre_zone=$1;pre_overtime=$2;has_data=1;} END {print pre_zone, pre_overtime, author_num, commit_num;}' | sort -n |
-   awk ' {print $1":"$2, $3":"$4}' > $result/$name/by_zone/output/part-r-00000
+
+   $HIVE_HOME/bin/hive -e "select printf(\"%d:%d %d:%d\", temp.zone, temp.overtime, temp.author_num, temp.commit_num) from (select zone, overtime, count(distinct email) as author_num, count(*) as commit_num from $table where true group by zone, overtime order by zone, overtime) temp;" > $result/$name/by_zone/output/part-r-00000
 }
 
 by_author () {
@@ -56,7 +53,6 @@ by_core_author () {
 
    $HIVE_HOME/bin/hive -e "select count(*) from $table;" > $result/$name/by_core_author/extra/commit_number
    $HIVE_HOME/bin/hive -e "select count(*) as commit_num, email from $table where true group by email order by commit_num desc;" > $result/$name/by_core_author/output/part-r-00000
-
 }
 
 by_cross () {
@@ -67,19 +63,17 @@ by_cross () {
    mkdir -p $result/$name/by_cross/extra
 
    $HIVE_HOME/bin/hive -e "select count(distinct email) from $table where true;" > $result/$name/by_cross/extra/author_number
-   $HIVE_HOME/bin/hive -e "select count(*) from (select count(distinct repo) as repo_num, email from allrepo_commits where true group by email order by repo_num desc) sub where sub.repo_num > 1;" > $result/$name/by_cross/extra/cross_author_number
+   $HIVE_HOME/bin/hive -e "select count(*) from (select count(distinct repo) as repo_num, email from $table where true group by email order by repo_num desc) sub where sub.repo_num > 1;" > $result/$name/by_cross/extra/cross_author_number
 }
 
 by_related () {
    echo "by_related $1 $2"
+   name=$1
+   table=$1_commits
    mkdir -p $result/$name/by_related/output
    mkdir -p $result/$name/by_related/extra
-   awk ' BEGIN {OFS=" "} {print $5, $1}' $result/$name/preprocess/preprocess.log   |
-   sort -nr | uniq |
-   awk 'BEGIN {OFS=" ";repo_list="";} {if ($1 == pre_email) {repo_list=(repo_list" "$2);  }else{if(repo_list ~ / /)print repo_list;repo_list=$2;}
-   }; {pre_email=$1;pre_repo=$2;}' |
-   awk '{for(i=1;i<=NF;i++){for(j=i+1;j<=NF;j++){if($i < $j)print $i,$j; else print $j, $i;}}}' |
-   sort -nr | uniq -c | sort -nr > $result/$name/by_related/output/part-r-00000
+
+   $HIVE_HOME/bin/hive -e "select count(*) as count, joined_table.repo1, joined_table.repo2 from (select table1.email, table1.repo as repo1, table2.repo as repo2 from (select email, repo from $table where true group by email, repo order by email) table1 inner join (select email, repo from $table where true group by email, repo order by email) table2 on table1.email=table2.email where table1.repo < table2.repo) joined_table where true group by joined_table.repo1, joined_table.repo2 order by count desc;" > $result/$name/by_related/output/part-r-00000
 }
 
 by_hour () {
@@ -90,7 +84,7 @@ by_hour () {
    $HIVE_HOME/bin/hive -e "select hour, count(*) as commit_num from $table group by hour;" > $result/$name/by_hour/middle/1/part-r-00000
 }
 
-for entry in "$WORK_DIR"/input/allrepo.log
+for entry in "$WORK_DIR"/input/*.log
 do
   echo "processing $entry"
   name=$(basename "$entry" ".log")
