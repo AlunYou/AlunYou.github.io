@@ -1,10 +1,13 @@
 version: '2'
 services:
   namenode:
-    image: alun/hadoop:3.7
+    image: alun/hadoop:4.0
     container_name: namenode
     hostname: namenode
     command: ["/usr/sbin/sshd", "-D"]
+    mem_limit: 2000000000  
+    volumes: 
+        - /Users/You/workspace:/mnt_host  
     ports:
         - 50071:50070
         - 50091:50090
@@ -17,10 +20,13 @@ services:
         - slave2
         - slave3
   resourcemanager:
-    image: alun/hadoop:3.7
+    image: alun/hadoop:4.0
     container_name: resourcemanager
     hostname: resourcemanager
     command: ["/usr/sbin/sshd", "-D"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host   
     ports:
         - 8089:8088
         - 8060:8030
@@ -35,10 +41,13 @@ services:
         - slave2
         - slave3 
   jobhistory:
-    image: alun/hadoop:3.7
+    image: alun/hadoop:4.0
     container_name: jobhistory
     hostname: jobhistory
     command: ["/usr/sbin/sshd", "-D"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
     ports:
         - 19889:19888
         - 10021:10020 
@@ -47,12 +56,13 @@ services:
         - slave2
         - slave3
   slave1:
-    image: alun/hadoop:3.7
+    image: alun/hadoop:4.0
     container_name: slave1
     hostname: slave1
     command: ["/usr/sbin/sshd", "-D"]
-    mem_limit: 2000000000
-    #memswap_limit: 2000000000
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
     ports:
         - 50011:50010
         - 1005:1004
@@ -62,12 +72,13 @@ services:
         - 50021:50020
         - 8051:8040
   slave2:
-    image: alun/hadoop:3.7
+    image: alun/hadoop:4.0
     container_name: slave2
     hostname: slave2
     command: ["/usr/sbin/sshd", "-D"]
-    mem_limit: 2000000000
-    #memswap_limit: 2000000000
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
     ports:
         - 50012:50010
         - 1006:1004
@@ -77,11 +88,13 @@ services:
         - 50022:50020
         - 8052:8040
   slave3:
-    image: alun/hadoop:3.7
+    image: alun/hadoop:4.0
     container_name: slave3
     hostname: slave3
     command: ["/usr/sbin/sshd", "-D"]
-    mem_limit: 2000000000
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
     #memswap_limit: 2000000000
     ports:
         - 50013:50010
