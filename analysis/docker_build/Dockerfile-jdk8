@@ -12,6 +12,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853B
     update-java-alternatives --list;\
     update-java-alternatives --set java-1.8.0-openjdk-amd64;
 
+
 #environment variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH $PATH:$JAVA_HOME/bin

@@ -29,6 +29,7 @@ RUN mkdir -p /tmp/native;\
 RUN cd /usr/local && ln -s /mnt_host/docker/hadoop-2.7.2 hadoop
 
 
+
 ENV HADOOP_PREFIX /usr/local/hadoop
 ENV HADOOP_HOME /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
