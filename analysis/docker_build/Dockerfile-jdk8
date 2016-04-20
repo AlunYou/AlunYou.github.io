@@ -1,0 +1,17 @@
+FROM alun/hadoop-basic:1.0
+MAINTAINER Alun
+
+USER root
+
+#install jdk8
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853BAF164EB9B1D8886F44E2A;\
+    touch /etc/apt/sources.list.d/openjdk.list;\
+    echo "deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu trusty main " >>/etc/apt/sources.list.d/openjdk.list;\
+    apt-get update;\
+    apt-get -y install openjdk-8-jdk;\
+    update-java-alternatives --list;\
+    update-java-alternatives --set java-1.8.0-openjdk-amd64;
+
+#environment variable
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH $PATH:$JAVA_HOME/bin
