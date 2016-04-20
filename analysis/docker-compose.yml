@@ -1,7 +1,7 @@
 version: '2'
 services:
   namenode:
-    image: alun/hadoop:4.0
+    image: higherone/alunyou.github.io:docker-basic
     container_name: namenode
     hostname: namenode
     command: ["/usr/sbin/sshd", "-D"]
@@ -20,7 +20,7 @@ services:
         - slave2
         - slave3
   resourcemanager:
-    image: alun/hadoop:4.0
+    image: higherone/alunyou.github.io:docker-basic
     container_name: resourcemanager
     hostname: resourcemanager
     command: ["/usr/sbin/sshd", "-D"]
@@ -41,7 +41,7 @@ services:
         - slave2
         - slave3 
   jobhistory:
-    image: alun/hadoop:4.0
+    image: higherone/alunyou.github.io:docker-basic
     container_name: jobhistory
     hostname: jobhistory
     command: ["/usr/sbin/sshd", "-D"]
@@ -56,7 +56,7 @@ services:
         - slave2
         - slave3
   slave1:
-    image: alun/hadoop:4.0
+    image: higherone/alunyou.github.io:docker-basic
     container_name: slave1
     hostname: slave1
     command: ["/usr/sbin/sshd", "-D"]
@@ -72,7 +72,7 @@ services:
         - 50021:50020
         - 8051:8040
   slave2:
-    image: alun/hadoop:4.0
+    image: higherone/alunyou.github.io:docker-basic
     container_name: slave2
     hostname: slave2
     command: ["/usr/sbin/sshd", "-D"]
@@ -88,7 +88,7 @@ services:
         - 50022:50020
         - 8052:8040
   slave3:
-    image: alun/hadoop:4.0
+    image: higherone/alunyou.github.io:docker-basic
     container_name: slave3
     hostname: slave3
     command: ["/usr/sbin/sshd", "-D"]
