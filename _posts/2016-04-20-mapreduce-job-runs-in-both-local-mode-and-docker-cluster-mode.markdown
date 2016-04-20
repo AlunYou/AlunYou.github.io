@@ -90,7 +90,7 @@ you need to <strong>tune the memory very carefully</strong> so that this cluster
   
   + **mapreduce.map.java.opts is JVM needed memory, it should be small than mapreduce.map.memory.mb which is the memory the hadoop scheduler should ask from the node machine**
    
-<h6>2. <strong>Need to distinguish local file or hdfs file</strong>. Be reminded that you're writing for jobs for cluster run too. </h6>
+<h6><br>2. <strong>Need to distinguish local file or hdfs file</strong>. Be reminded that you're writing for jobs for cluster run too. </h6>
  
 
 <h3><br>Conclusion: I believe this pattern could be extracted into a development framework someday.</h3>
