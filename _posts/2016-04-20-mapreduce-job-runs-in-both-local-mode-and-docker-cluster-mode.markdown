@@ -8,7 +8,7 @@ categories: mapreduce
 We usually need to run mapreduce job in local mode first, which is the quickest and best for debugging because the code is in a single local java process. 
 Then we usually need to run job in distributed mode (or at least pseudo distributed mode) because it's the only way to find out distribution related bugs.
 
-###In this post, I'll first introduce my practice about how to achieve both with docker, mainly for development purpose.
+<h3>In this post, I'll first introduce my practice about how to achieve both with docker, mainly for development purpose.</h3>
 
 First, I publish a docker image which enables basic features for hadoop, which runs ssh-server, enables passphraseless ssh login, 
 installs java and hadoop native support and exports necessary environment variables. 
@@ -28,9 +28,11 @@ and operate on local file system (relative to current dir in local file system).
 and operate on the hdfs file system in the cluster (relative to /user/root in hdfs file system, where root is the user name logins). 
 So by using the same `relative path` in the script, I can reference correct files in hadoop job for both local and cluster mode.
  
-###And now here are some tips to develop hadoop jobs in this pattern.
+<h3>And now here are some tips to develop hadoop jobs in this pattern.</h3>
 
-#####1. Because all containers run in a single development machine, you need to `tune the memory very carefully` so that this cluster job will not make your computer unresponsive. 
+<h6>1. Because all containers run in a single development machine, 
+you need to <strong>tune the memory very carefully</strong> so that this cluster job will not make your computer unresponsive.
+ </h6>
  
  My cluster has 6 nodes, name node and secondary name node, resource manager, job history server, slave1, slave2, slave3.
  
@@ -88,10 +90,10 @@ So by using the same `relative path` in the script, I can reference correct file
   
   + **mapreduce.map.java.opts is JVM needed memory, it should be small than mapreduce.map.memory.mb which is the memory the hadoop scheduler should ask from the node machine**
    
-#####2. `Need to distinguish local file or hdfs file`. Be reminded that you're writing for jobs for cluster run too. 
+<h6>2. <strong>Need to distinguish local file or hdfs file</strong>. Be reminded that you're writing for jobs for cluster run too. </h6>
  
 
-###<br>Conclusion: I believe this pattern could be extracted into a development framework someday.
+<h3><br>Conclusion: I believe this pattern could be extracted into a development framework someday.</h3>
 
 
 [docker-file]: https://hub.docker.com/r/higherone/alunyou.github.io/~/dockerfile/
