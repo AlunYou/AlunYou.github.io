@@ -16,7 +16,7 @@ $HADOOP_HOME/bin/hadoop fs -rm -r hdfs_result
 $HADOOP_HOME/bin/hadoop fs -mkdir hdfs_result
 $HADOOP_HOME/bin/hadoop fs -copyFromLocal $INPUT_DIR hdfs_input
 
-jobs=(by_hour) #(by_zone by_author by_core_author by_cross by_related by_hour)
+jobs=(by_zone by_author by_core_author by_cross by_related by_hour)
 
 for entry in "$INPUT_DIR"/*.log
 do

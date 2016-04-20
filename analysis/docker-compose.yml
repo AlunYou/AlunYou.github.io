@@ -4,7 +4,7 @@ services:
     image: higherone/alunyou.github.io:docker-basic
     container_name: namenode
     hostname: namenode
-    command: ["/usr/sbin/sshd", "-D"]
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot.sh", "-d"]
     mem_limit: 2000000000  
     volumes: 
         - /Users/You/workspace:/mnt_host  
@@ -23,7 +23,7 @@ services:
     image: higherone/alunyou.github.io:docker-basic
     container_name: resourcemanager
     hostname: resourcemanager
-    command: ["/usr/sbin/sshd", "-D"]
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot.sh", "-d"]
     mem_limit: 2000000000 
     volumes: 
         - /Users/You/workspace:/mnt_host   
@@ -44,7 +44,7 @@ services:
     image: higherone/alunyou.github.io:docker-basic
     container_name: jobhistory
     hostname: jobhistory
-    command: ["/usr/sbin/sshd", "-D"]
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot.sh", "-d"]
     mem_limit: 2000000000 
     volumes: 
         - /Users/You/workspace:/mnt_host
@@ -59,7 +59,7 @@ services:
     image: higherone/alunyou.github.io:docker-basic
     container_name: slave1
     hostname: slave1
-    command: ["/usr/sbin/sshd", "-D"]
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot.sh", "-d"]
     mem_limit: 2000000000 
     volumes: 
         - /Users/You/workspace:/mnt_host
@@ -75,7 +75,7 @@ services:
     image: higherone/alunyou.github.io:docker-basic
     container_name: slave2
     hostname: slave2
-    command: ["/usr/sbin/sshd", "-D"]
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot.sh", "-d"]
     mem_limit: 2000000000 
     volumes: 
         - /Users/You/workspace:/mnt_host
@@ -91,7 +91,7 @@ services:
     image: higherone/alunyou.github.io:docker-basic
     container_name: slave3
     hostname: slave3
-    command: ["/usr/sbin/sshd", "-D"]
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot.sh", "-d"]
     mem_limit: 2000000000 
     volumes: 
         - /Users/You/workspace:/mnt_host

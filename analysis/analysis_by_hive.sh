@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export WORK_DIR=/Users/You/workspace/gitblog/AlunYou.github.io/analysis
+export WORK_DIR=.
 
 result=result_hive
 rm -rf $result
@@ -13,9 +13,10 @@ load_preprocess() {
     echo $table
 
     preprocess=$2
-    $HIVE_HOME/bin/hive -e "DROP TABLE $table;"
-    $HIVE_HOME/bin/hive -e "CREATE TABLE $table (repo STRING, overtime INT, hour INT, zone INT, email STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ' ';"
-    $HIVE_HOME/bin/hive -e "LOAD DATA LOCAL INPATH '$preprocess' OVERWRITE INTO TABLE $table;"
+    $HIVE_HOME/bin/hive -e "
+        DROP TABLE $table;
+        CREATE TABLE $table (repo STRING, overtime INT, hour INT, zone INT, email STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ' ';
+        LOAD DATA LOCAL INPATH '$preprocess' OVERWRITE INTO TABLE $table;"
 }
 
 by_zone () {
@@ -101,7 +102,7 @@ do
 
   # preprocessing into columns: repo overtime hour zone email
   awk 'BEGIN {OFS="\n"} {if ($1 ~ /^Date:/) print $0,FILENAME; else print $0; }' $input |
-  LANG=C LC_ALL=C sed -n '/^Author: .*\<\(.\{2,\}\)\>$/{s/^Author: .*\<\(.*\)\>$/\1/g; s/[ \t]*//g; h; n; s/Date:   \(.\{3\}\) .\{3\} [0-9]\{1,2\} \([0-9]\{2\}\):[0-9]\{2\}:[0-9]\{2\} [0-9]\{4\} \([+-]\{1\}[0-9]\{2\}\).*/\1-\2 \3/g; s/Sat-\([0-9]\{2\}\)/1 \1/g; s/Sun-\([0-9]\{2\}\)/1 \1/g; s/^.\{3\}-\(0[0-7]\)/1 \1/g; s/^.\{3\}-\(19\)/1 \1/g; s/^.\{3\}-\(2[0-3]\)/1 \1/g; s/^.\{3\}-\([0-9]\{2\}\)/0 \1/g; G; h; n; s=\(.*\/\)\([^/]*\)\(\.log\)$=\2=g; G; s/\n/ /g; p; }' > $preprocess
+  LANG=C LC_ALL=C sed -n '/^Author: .*<\(.\{2,\}\)>$/{s/^Author: .*<\(.*\)>$/\1/g; s/[ \t]*//g; h; n; s/Date:   \(.\{3\}\) .\{3\} [0-9]\{1,2\} \([0-9]\{2\}\):[0-9]\{2\}:[0-9]\{2\} [0-9]\{4\} \([+-]\{1\}[0-9]\{2\}\).*/\1-\2 \3/g; s/Sat-\([0-9]\{2\}\)/1 \1/g; s/Sun-\([0-9]\{2\}\)/1 \1/g; s/^.\{3\}-\(0[0-7]\)/1 \1/g; s/^.\{3\}-\(19\)/1 \1/g; s/^.\{3\}-\(2[0-3]\)/1 \1/g; s/^.\{3\}-\([0-9]\{2\}\)/0 \1/g; G; h; n; s=\(.*\/\)\([^/]*\)\(\.log\)$=\2=g; G; s/\n/ /g; p; }' > $preprocess
 
   for job in "${jobs[@]}"
   do
