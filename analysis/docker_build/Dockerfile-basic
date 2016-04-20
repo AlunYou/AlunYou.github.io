@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM higherone/alunyou.github.io:ubuntu-jdk8
 MAINTAINER Alun
 
 USER root
