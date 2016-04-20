@@ -1,5 +1,3 @@
-BIM360Ent
-=========
 
 This is source code repository for Alun's blog, you need to visit http://alunyou.github.io/ for blogs.
 
