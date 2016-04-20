@@ -27,11 +27,13 @@ RUN mkdir -p /tmp/native;\
 
 #link
 RUN cd /usr/local && ln -s /mnt_host/docker/hadoop-2.7.2 hadoop
+RUN cd /usr/local && ln -s /mnt_host/docker/apache-hive-2.0.0-bin hive
 
 
+ENV HIVE_HOME /usr/local/hive
+ENV HADOOP_HOME /usr/local/hadoop
 
 ENV HADOOP_PREFIX /usr/local/hadoop
-ENV HADOOP_HOME /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
 ENV HADOOP_HDFS_HOME /usr/local/hadoop
 ENV HADOOP_MAPRED_HOME /usr/local/hadoop
