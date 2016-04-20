@@ -1,4 +1,4 @@
-FROM alun/hadoop-basic:1.0
+FROM ubuntu
 MAINTAINER Alun
 
 USER root
