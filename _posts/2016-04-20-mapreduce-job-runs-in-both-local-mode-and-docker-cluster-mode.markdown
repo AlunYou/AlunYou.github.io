@@ -36,9 +36,10 @@ you need to <strong>tune the memory very carefully</strong> so that this cluster
  
  My cluster has 6 nodes, name node and secondary name node, resource manager, job history server, slave1, slave2, slave3.
  
- Memory related configuration in mapred-site.xml:
-  {% highlight javascript %}
-   <property>
+ Memory related configuration in mapred-site.xml and yarn-site.xml:
+ 
+  ```xml
+    <property>
         <name>yarn.app.mapreduce.am.resource.mb</name>
         <value>400</value>
     </property>
@@ -62,26 +63,23 @@ you need to <strong>tune the memory very carefully</strong> so that this cluster
         <name>yarn.app.mapreduce.am.command-opts</name>
         <value>-Xmx1200m</value>
     </property>
-  {% endhighlight %}
-  Memory related configuration in yarn-site.xml:
-  {% highlight javascript %}
-  <property>
-      <name>yarn.nodemanager.resource.memory-mb</name>
-      <value>1024</value>
-  </property>
-  <property>
-      <name>yarn.scheduler.minimum-allocation-mb</name>
-      <value>256</value>
-  </property>
-  <property>
-      <name>yarn.scheduler.maximum-allocation-mb</name>
-      <value>800</value>
-  </property>
-  <property>
-      <name>yarn.nodemanager.vmem-pmem-ratio</name>
-      <value>10</value>
-  </property>
-  {% endhighlight %}
+    <property>
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>1024</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.minimum-allocation-mb</name>
+        <value>256</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.maximum-allocation-mb</name>
+        <value>800</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.vmem-pmem-ratio</name>
+        <value>10</value>
+    </property>
+  ```
   + **yarn.nodemanager.resource.memory-mb is the physical memory each node machine can use for running hadoop containers**
   
   + **yarn.scheduler.minimum-allocation-mb and yarn.scheduler.maximum-allocation-mb are the hadoop container physical memory range, 

@@ -1,0 +1,113 @@
+version: '2'
+services:
+  namenode1:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: namenode1
+    hostname: namenode1
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000  
+    volumes: 
+        - /Users/You/workspace:/mnt_host  
+    ports:
+        - 50071:50070
+        - 50091:50090
+        - 9000:9000
+        - 8021:8020
+  namenode2:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: namenode2
+    hostname: namenode2
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000  
+    volumes: 
+        - /Users/You/workspace:/mnt_host  
+    ports:
+        - 50072:50070
+        - 50092:50090
+        - 9002:9000  
+        - 8022:8020    
+
+  resourcemanager:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: resourcemanager
+    hostname: resourcemanager
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host   
+    ports:
+        - 8089:8088
+        - 8060:8030
+        - 8061:8031
+        - 8062:8032
+        - 8063:8033
+        - 8049:8040
+        - 9001:9001
+
+  jobhistory:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: jobhistory
+    hostname: jobhistory
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
+    ports:
+        - 19889:19888
+        - 10021:10020 
+
+  slave1:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: slave1
+    hostname: slave1
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
+    ports:
+        - 50011:50010
+        - 1005:1004
+        - 1016:1006
+        - 8043:8042 
+        - 50076:50075
+        - 50021:50020
+        - 8051:8040
+        - 8486:8485
+        - 8481:8480
+  slave2:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: slave2
+    hostname: slave2
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
+    ports:
+        - 50012:50010
+        - 1006:1004
+        - 1017:1006
+        - 8044:8042
+        - 50077:50075
+        - 50022:50020
+        - 8052:8040
+        - 8487:8485
+        - 8482:8480
+  slave3:
+    image: higherone/alunyou.github.io:docker-basic
+    container_name: slave3
+    hostname: slave3
+    command: ["/mnt_host/gitblog/AlunYou.github.io/analysis/onboot-qjm.sh", "-d"]
+    mem_limit: 2000000000 
+    volumes: 
+        - /Users/You/workspace:/mnt_host
+    #memswap_limit: 2000000000
+    ports:
+        - 50013:50010
+        - 1007:1004
+        - 1018:1006
+        - 8045:8042
+        - 50078:50075
+        - 50023:50020
+        - 8053:8040
+        - 8488:8485
+        - 8483:8480
